@@ -32,7 +32,7 @@ godot/export.cfg
 rust/**/*.rs.bk
 rust/Cargo.lock
 rust/debug/
-target/
+_target/
 tramp
 .idea
 
