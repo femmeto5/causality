@@ -46,12 +46,20 @@ impl Actor {
             r.change(amount);
         }
     }
+
+    pub fn get_resource(&self, identifier : &String) -> Option<&Resource> {
+        self.resources.get(identifier)
+    }
+
+    pub fn get_status(&self, identifier : &String) -> Option<&Status> {
+        self.statuses.get(identifier)
+    }
 }
 
 #[derive(Debug)]
 pub struct Resource {
     name: String,
-    value: f32,
+    pub(crate) value: f32,
     min: f32,
     max: f32,
 }
@@ -104,7 +112,7 @@ impl Resource {
     }
 }
 
-enum Status {
+pub enum Status {
     Tag,
     Value(f32),
 }

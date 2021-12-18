@@ -1,11 +1,46 @@
 use scene::action::{ActionList, ActionTarget, ChangeResourceAction};
 use scene::actor::{Actor, Resource};
 use scene::{process_scene, Scene, SceneStatus};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use crate::scene::action::{ActionRequirement, PossibleAction, PossibleActionSet};
 
 mod scene;
 
 fn main() {
+    let mut scene = Scene::default();
+    let possible_action = PossibleAction {
+        action: Box::from(
+            ChangeResourceAction::new(
+                None,
+                ActionTarget::Actor,
+                "test".to_string(),
+                "health".to_string(),
+                10.
+            )
+        ),
+        requirements: vec![
+            ActionRequirement::ActorResourceMax("health".to_string(), 50.)
+        ]
+    };
+    let possible_action_set = PossibleActionSet {
+        possible_actions: vec![possible_action]
+    };
+    let mut actor1 = Actor::new("One");
+    actor1.insert_resource(Resource::new("Health", 100., 0., 100.));
+    let mut actors: HashMap<usize, &mut Actor> = HashMap::new();
+    actors.insert(1, &mut actor1);
+    let mut actor2 = Actor::new("Two");
+    actor2.insert_resource(Resource::new("Health", 0., 0., 100.));
+    actors.insert(2, &mut actor2);
+    let actions = possible_action_set.build_action_set(&actors, 1, &scene);
+    println!("{}", actions.len());
+    let actions = possible_action_set.build_action_set(&actors, 2, &scene);
+    println!("{}", actions.len());
+
+}
+
+
+fn scene_test() {
     let mut scene = Scene::default();
     let mut actor1 = Actor::new("One");
     let mut actor2 = Actor::new("Two");
