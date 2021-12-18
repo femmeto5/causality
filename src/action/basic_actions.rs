@@ -1,6 +1,6 @@
-use crate::scene::action::NextAction;
-use crate::scene::SceneOutput;
-use crate::{Action, ActionTarget, Actor, Scene};
+use crate::action::{Action, ActionResult, ActionTarget, NextAction};
+use crate::actor::Actor;
+use crate::scene::{Scene, SceneOutput};
 use std::collections::HashMap;
 
 // Action List
@@ -16,7 +16,7 @@ impl Action for ActionList {
         actor_list: &mut HashMap<usize, &mut Actor>,
         source: usize,
         scene: &mut Scene,
-    ) -> (Option<NextAction>, Vec<(usize, Box<dyn Action>)>) {
+    ) -> ActionResult {
         let mut reactions = Vec::new();
         for action in &self.actions {
             let (next, mut reaction) = action.apply(actor_list, source, scene);
@@ -27,6 +27,14 @@ impl Action for ActionList {
         }
         (None, reactions)
     }
+
+    fn name(&self) -> String {
+        String::from("Unnamed Action List")
+    }
+
+    fn set_target(&mut self, _: Option<usize>) {}
+
+    fn set_source(&mut self, _: Option<usize>) {}
 }
 
 impl ActionList {
@@ -39,6 +47,7 @@ impl ActionList {
 
 #[derive(Clone)]
 pub struct ChangeResourceAction {
+    source: Option<usize>,
     target: Option<usize>,
     target_type: ActionTarget,
     action_name: String,
@@ -53,7 +62,7 @@ impl Action for ChangeResourceAction {
         actor_list: &mut HashMap<usize, &mut Actor>,
         source: usize,
         scene: &mut Scene,
-    ) -> (Option<NextAction>, Vec<(usize, Box<dyn Action>)>) {
+    ) -> ActionResult {
         let targets = match self.target_type {
             ActionTarget::Actor => {
                 vec![source]
@@ -90,10 +99,15 @@ impl Action for ChangeResourceAction {
     fn set_target(&mut self, target: Option<usize>) {
         self.target = target;
     }
+
+    fn set_source(&mut self, source: Option<usize>) {
+        self.source = source;
+    }
 }
 
 impl ChangeResourceAction {
     pub fn new(
+        source: Option<usize>,
         target: Option<usize>,
         target_type: ActionTarget,
         action_name: String,
@@ -102,31 +116,13 @@ impl ChangeResourceAction {
         output: SceneOutput,
     ) -> Self {
         Self {
+            source,
             target,
             target_type,
             action_name,
             resource_identifier,
             amount,
-            output
+            output,
         }
-    }
-}
-
-// Print
-
-#[derive(Clone)]
-pub struct PrintAction {
-    pub(crate) value: SceneOutput,
-}
-
-impl Action for PrintAction {
-    fn apply(
-        &self,
-        _actor_list: &mut HashMap<usize, &mut Actor>,
-        _source: usize,
-        scene: &mut Scene,
-    ) -> (Option<NextAction>, Vec<(usize, Box<dyn Action>)>) {
-        scene.output.push(self.value.clone());
-        (None, vec![])
     }
 }

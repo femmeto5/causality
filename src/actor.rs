@@ -1,4 +1,4 @@
-use crate::scene::action::Action;
+use crate::action::Action;
 use std::collections::{HashMap, VecDeque};
 
 pub struct Actor {
@@ -38,20 +38,20 @@ impl Actor {
     }
 
     pub fn get_target(&self) -> Option<usize> {
-        None
+        self.target
     }
 
-    pub fn change_resource(&mut self, identifier: &String, amount: f32) {
+    pub fn change_resource(&mut self, identifier: &str, amount: f32) {
         if let Some(r) = self.resources.get_mut(identifier) {
             r.change(amount);
         }
     }
 
-    pub fn get_resource(&self, identifier: &String) -> Option<&Resource> {
+    pub fn get_resource(&self, identifier: &str) -> Option<&Resource> {
         self.resources.get(identifier)
     }
 
-    pub fn get_status(&self, identifier: &String) -> Option<&Status> {
+    pub fn get_status(&self, identifier: &str) -> Option<&Status> {
         self.statuses.get(identifier)
     }
 }

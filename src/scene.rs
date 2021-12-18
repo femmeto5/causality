@@ -1,9 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-pub mod action;
-pub mod actor;
-
-use crate::scene::actor::Actor;
+use crate::actor::Actor;
 
 #[derive(Default, Debug)]
 pub struct Scene {
@@ -42,8 +39,8 @@ impl Scene {
 
 pub fn process_scene(scene: &mut Scene, actor_list: &mut HashMap<usize, &mut Actor>) {
     println!("Processing scene ...");
-    let mut actors = scene.actors().iter().map(|x| *x).collect::<Vec<usize>>();
-    actors.sort();
+    let mut actors = scene.actors().iter().copied().collect::<Vec<usize>>();
+    actors.sort_unstable();
     for idx in actors {
         println!("Processing actions for {}", idx);
         process_actions(scene, actor_list, idx);

@@ -1,9 +1,10 @@
-use crate::scene::actor::{Actor, Status};
+use crate::actor::{Actor, Status};
 use crate::scene::Scene;
 use std::collections::HashMap;
 
-pub mod action_collection;
 mod basic_actions;
+
+pub type ActionResult = (Option<NextAction>, Vec<(usize, Box<dyn Action>)>);
 
 pub use basic_actions::*;
 
@@ -28,7 +29,7 @@ impl PossibleActionSet {
     }
 }
 
-pub fn build_action_option_mapping(actions: &Vec<Box<dyn Action>>) -> HashMap<String, usize> {
+pub fn build_action_option_mapping(actions: &[Box<dyn Action>]) -> HashMap<String, usize> {
     let mut mapping = HashMap::new();
     for (i, _) in actions.iter().enumerate() {
         mapping.insert(i.to_string(), i);
@@ -64,6 +65,7 @@ pub enum ActionRequirement {
     Target(Box<ActionRequirement>),
 }
 
+#[allow(clippy::redundant_pattern_matching)]
 impl ActionRequirement {
     pub fn check(
         &self,
@@ -138,15 +140,15 @@ pub trait Action: ActionClone {
         actor_list: &mut HashMap<usize, &mut Actor>,
         source: usize,
         scene: &mut Scene,
-    ) -> (Option<NextAction>, Vec<(usize, Box<dyn Action>)>);
+    ) -> ActionResult;
 
     fn target(&self) -> Option<usize> {
-        return None;
+        None
     }
 
-    fn name(&self) -> String {
-        String::new()
-    }
+    fn name(&self) -> String;
 
-    fn set_target(&mut self, _target: Option<usize>) {}
+    fn set_target(&mut self, target: Option<usize>);
+
+    fn set_source(&mut self, source: Option<usize>);
 }
