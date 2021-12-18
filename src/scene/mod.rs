@@ -1,18 +1,23 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 
 pub mod action;
 pub mod actor;
 
-use crate::scene::action::Action;
 use crate::scene::actor::Actor;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Scene {
     actors: std::collections::HashSet<usize>,
     pub status: SceneStatus,
+    pub output: Vec<SceneOutput>,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Default, Clone, Debug)]
+pub struct SceneOutput {
+    pub(crate) content: String,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum SceneStatus {
     RequireUserInput,
     RequireAIInput,
@@ -36,9 +41,11 @@ impl Scene {
 }
 
 pub fn process_scene(scene: &mut Scene, actor_list: &mut HashMap<usize, &mut Actor>) {
+    println!("Processing scene ...");
     let mut actors = scene.actors().iter().map(|x| *x).collect::<Vec<usize>>();
     actors.sort();
     for idx in actors {
+        println!("Processing actions for {}", idx);
         process_actions(scene, actor_list, idx);
     }
     scene.status = SceneStatus::RequireUserInput;
@@ -50,10 +57,16 @@ fn process_actions(scene: &mut Scene, actor_list: &mut HashMap<usize, &mut Actor
     }
     let mut maybe_action = actor_list.get_mut(&idx).unwrap().actions_mut().pop_front();
     while let Some(action) = maybe_action {
+        println!("Processing action {}", action.name());
         maybe_action = actor_list.get_mut(&idx).unwrap().actions_mut().pop_front();
-        let (next, reactions) = action.apply(actor_list, idx, scene);
+        let (_next, reactions) = action.apply(actor_list, idx, scene);
         for (i, a) in reactions {
             a.apply(actor_list, i, scene);
         }
     }
+
+    for o in &scene.output {
+        print!("{}", o.content);
+    }
+    println!();
 }

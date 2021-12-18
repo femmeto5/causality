@@ -47,11 +47,11 @@ impl Actor {
         }
     }
 
-    pub fn get_resource(&self, identifier : &String) -> Option<&Resource> {
+    pub fn get_resource(&self, identifier: &String) -> Option<&Resource> {
         self.resources.get(identifier)
     }
 
-    pub fn get_status(&self, identifier : &String) -> Option<&Status> {
+    pub fn get_status(&self, identifier: &String) -> Option<&Status> {
         self.statuses.get(identifier)
     }
 }
